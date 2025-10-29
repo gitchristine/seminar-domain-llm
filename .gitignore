@@ -1,11 +1,12 @@
 data/
-.venv/
+venv/
+notebooks/
 .vscode/
 wandb/
 __pycache__/
 log_slurm/
 persisted_models/
 tests/
-.results/
+results/
 .env
 *.pth
