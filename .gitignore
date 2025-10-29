@@ -6,6 +6,6 @@ __pycache__/
 log_slurm/
 persisted_models/
 tests/
-
+.results/
 .env
 *.pth
