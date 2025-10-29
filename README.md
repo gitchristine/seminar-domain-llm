@@ -8,11 +8,11 @@ Original code repository: [https://github.com/raseidi/llm-peft-ppm](https://gith
 
 ## Abstract
 
-We have attempted to replicate the methods and reproduce the results in "Parameter-Efficient Fine-Tuning of Large Language Models for Predictive Process Monitoring" using publicly available datasets and the authors' published code. This replication study was conducted on TU/e HPC infrastructure to evaluate the effectiveness of PEFT techniques for adapting Large Language Models to predictive process monitoring tasks.
+I have attempted to replicate the methods and reproduce the results in "Parameter-Efficient Fine-Tuning of Large Language Models for Predictive Process Monitoring" using publicly available datasets and the authors' published code. This replication study was conducted on TU/e HPC infrastructure to evaluate the effectiveness of PEFT techniques for adapting Large Language Models to predictive process monitoring tasks.
 
-The original study demonstrated that PEFT-adapted LLMs outperform traditional RNN-based approaches and narrative-style LLM methods in both single-task and multi-task predictive process monitoring scenarios. We replicated their experimental framework using identical model architectures (LSTM, GPT-2, Qwen2, Llama3.2), PEFT techniques (LoRA with r=256, α=512, and layer freezing strategies), and evaluation metrics (accuracy for next activity prediction, MSE for remaining time prediction).
+The original study demonstrated that PEFT-adapted LLMs outperform traditional RNN-based approaches and narrative-style LLM methods in both single-task and multi-task predictive process monitoring scenarios. I replicated their experimental framework using identical model architectures (LSTM, GPT-2, Qwen2, Llama3.2), PEFT techniques (LoRA with r=256, α=512, and layer freezing strategies), and evaluation metrics (accuracy for next activity prediction, MSE for remaining time prediction).
 
-We extended the original evaluation by including the BPI Traffic Fines dataset to assess the generalizability of the proposed approach across a broader range of process types and characteristics. Our replication closely follows the original methodology with identical preprocessing steps, train/test splitting, and hyperparameter configurations.
+I extended the original evaluation by including the BPI Traffic Fines dataset to assess the generalizability of the proposed approach across a broader range of process types and characteristics. Our replication closely follows the original methodology with identical preprocessing steps, train/test splitting, and hyperparameter configurations.
 
 [Results summary to be added upon completion of experiments]
 
@@ -428,4 +428,5 @@ For questions about this replication study:
 For questions about the original method:
 - **Original Author**: Rafael Oyamada - [rafael.oyamada@kuleuven.be]
 - **Original Repository**: [https://github.com/raseidi/llm-peft-ppm](https://github.com/raseidi/llm-peft-ppm)
+
 
