@@ -1,6 +1,6 @@
 data/
 venv/
-notebooks/
+# notebooks/
 .vscode/
 wandb/
 __pycache__/

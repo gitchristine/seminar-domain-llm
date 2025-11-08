@@ -53,6 +53,13 @@ EVENT_LOGS = {
     "BPI20RequestForPayment": BPI20RequestForPayment,
 }
 
+CUSTOM_DATASETS = {
+    "BPITrafficFines": {
+        "path": "data/BPITrafficFines/Road_Traffic_Fine_Management_Process.xes",
+        "url": "https://data.4tu.nl/articles/dataset/Road_Traffic_Fine_Management_Process/12683249",
+    }
+}
+
 # Extracting time features from time stamps 
 NUMERICAL_FEATURES = [
     "accumulated_time",
@@ -274,9 +281,28 @@ def get_model_config(train_log: EventLog, training_config: dict):
 # MAIN training and evaluation loop
 def main(training_config: dict):
     # Step 1 : Load the raw data set 
-    log = EVENT_LOGS[training_config["log"]]()
+    dataset_name = training_config["log"]
+    if dataset_name in EVENT_LOGS:
+        # Use skpm dataset
+        log = EVENT_LOGS[training_config["log"]]()
     # Step 2 : Preprocess the data and split into train and test sets
-    train, test = prepare_data(log.dataframe, log.unbiased_split_params)
+        train, test = prepare_data(log.dataframe, log.unbiased_split_params)
+    
+    elif dataset_name in CUSTOM_DATASETS:
+        # Load custom dataset from XES file
+        from pm4py import read_xes
+        import os 
+        file_path = CUSTOM_DATASETS[dataset_name]["path"]
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(
+                f"Dataset file not found at {file_path}. Please download it from {CUSTOM_DATASETS[dataset_name]['url']} and place it in the specified path."
+            )
+        
+        df = read_xes(file_path)
+        train, test = prepare_data(df, unbiased_split_params={"train_ratio": 0.8, "random_state": RANDOM_SEED})
+        
+    else:
+        raise ValueError(f"Unknown dataset: {dataset_name}")
 
     # Step 3 : Define event features and targets
     event_features = EventFeatures(
