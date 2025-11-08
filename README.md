@@ -2,25 +2,22 @@
 
 **Replication of: Parameter-Efficient Fine-Tuning of Large Language Models for Predictive Process Monitoring**
 
-Original paper: Oyamada et al. "Parameter-Efficient Fine-Tuning of Large Language Models for Predictive Process Monitoring" (Under Review)
+Original paper: Oyamada et al. "Parameter-Efficient Fine-Tuning of Large Language Models for Predictive Process Monitoring" (arXiv 2025)
 
 Original code repository: [https://github.com/raseidi/llm-peft-ppm](https://github.com/raseidi/llm-peft-ppm)
 
 ## Abstract
 
-I have attempted to replicate the methods and reproduce the results in "Parameter-Efficient Fine-Tuning of Large Language Models for Predictive Process Monitoring" using publicly available datasets and the authors' published code. This replication study was conducted on TU/e HPC infrastructure to evaluate the effectiveness of PEFT techniques for adapting Large Language Models to predictive process monitoring tasks.
+I have attempted to replicate the methods and reproduce the results in "Parameter-Efficient Fine-Tuning of Large Language Models for Predictive Process Monitoring" using publicly available datasets and the authors' published code. 
 
 The original study demonstrated that PEFT-adapted LLMs outperform traditional RNN-based approaches and narrative-style LLM methods in both single-task and multi-task predictive process monitoring scenarios. I replicated their experimental framework using identical model architectures (LSTM, GPT-2, Qwen2, Llama3.2), PEFT techniques (LoRA with r=256, α=512, and layer freezing strategies), and evaluation metrics (accuracy for next activity prediction, MSE for remaining time prediction).
 
-I extended the original evaluation by including the BPI Traffic Fines dataset to assess the generalizability of the proposed approach across a broader range of process types and characteristics. Our replication closely follows the original methodology with identical preprocessing steps, train/test splitting, and hyperparameter configurations.
+I extended the original evaluation by including the BPI Traffic Fines dataset to assess the generalizability of the proposed approach across a broader range of process types and characteristics. My replication closely follows the original methodology with identical preprocessing steps, train/test splitting, and hyperparameter configurations. I ran the experiments 10 times to account for the variability and reported average performance metrics along with standard deviations.
 
-[Results summary to be added upon completion of experiments]
-
-This study demonstrates the [challenges/successes] of reproducing deep learning method results in the process mining domain, and contributes to the validation of PEFT techniques for predictive process monitoring applications.
 
 ## Requirements
 
-### Python Requirements
+### Software Requirements
 - Python >= 3.12
 - PyTorch >= 2.5.1  
 - Transformers >= 4.0

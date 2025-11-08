@@ -15,10 +15,11 @@ from ppm.datasets.event_logs import EventFeatures, EventLog, EventTargets
 from skpm.event_logs import (
     BPI12,
     BPI17,
-    BPI19,
+    # BPI19,
     BPI20PrepaidTravelCosts,
     BPI20TravelPermitData,
     BPI20RequestForPayment,
+    # Traffic Fines dataset needs to be manually imported 
 )
 from skpm.event_logs.split import unbiased
 from skpm.feature_extraction import TimestampExtractor
@@ -38,18 +39,21 @@ try:
 except ImportError:
     WANDB_AVAILABLE = False
 
+# random seed for reproducibility!
 RANDOM_SEED = 42
 torch.manual_seed(RANDOM_SEED)
 
+# mapping dataset names to their corresponding classes in the skpm.event_logs module
 EVENT_LOGS = {
     "BPI12": BPI12,
     "BPI17": BPI17,
-    "BPI19": BPI19,
+    # "BPI19": BPI19, # BPI19 is not present in the paper 
     "BPI20PrepaidTravelCosts": BPI20PrepaidTravelCosts,
     "BPI20TravelPermitData": BPI20TravelPermitData,
     "BPI20RequestForPayment": BPI20RequestForPayment,
 }
 
+# Extracting time features from time stamps 
 NUMERICAL_FEATURES = [
     "accumulated_time",
     "day_of_month",
@@ -149,29 +153,39 @@ def parse_args():
     return parser.parse_args()
 
 
+# Data preprocessing 
 def prepare_data(
     df: pd.DataFrame, unbiased_split_params: dict
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    
+    # Keep only the essential common columns
     df = df.loc[:, ["case:concept:name", "concept:name", "time:timestamp"]]
+
+    # Drop cases with less than 2 events
     cases_to_drop = df.groupby("case:concept:name").size() > 2
     cases_to_drop = cases_to_drop[cases_to_drop].index
     df = df[df["case:concept:name"].isin(cases_to_drop)]
 
+    # Sort by case and time 
     df = df.sort_values(by=["case:concept:name", "time:timestamp"])
+
+    # Unbiased split into train and test sets
     train, test = unbiased(df, **unbiased_split_params)
 
-    time_unit = "d"
+    # Extract time features i.e. accumulated_time and remaining_time
+    time_unit = "d" #days
     ts = TimestampExtractor(
         case_features=["accumulated_time", "remaining_time"],
-        event_features="all",
+        event_features="all", 
         time_unit=time_unit,
     )
     train[ts.get_feature_names_out()] = ts.fit_transform(train)
     test[ts.get_feature_names_out()] = ts.transform(test)
-
+    # Drop the original timestamp column because it is no longer needed
     train = train.drop(columns=["time:timestamp"])
     test = test.drop(columns=["time:timestamp"])
 
+    # Rename columns for compatibility with ppm
     train = train.rename(
         columns={"case:concept:name": "case_id", "concept:name": "activity"}
     )
@@ -179,6 +193,7 @@ def prepare_data(
         columns={"case:concept:name": "case_id", "concept:name": "activity"}
     )
 
+    # Z-score normalization
     sc = StandardScaler()
     columns = NUMERICAL_FEATURES + ["remaining_time"]
     # columns = ["accumulated_time", "remaining_time"]
@@ -187,7 +202,7 @@ def prepare_data(
 
     return train, test
 
-
+# Configures LoRA or Freeze fine-tuning strategies based on the cmd line arguments
 def get_fine_tuning(fine_tuning, **kwargs):
     if fine_tuning == "lora":
         target_modules = (
@@ -221,6 +236,7 @@ def get_fine_tuning(fine_tuning, **kwargs):
         raise ValueError("Invalid fine-tuning strategy")
 
 
+# Creates a model configuration based on the training configuration and event log
 def get_model_config(train_log: EventLog, training_config: dict):
     pretrained_config = PRETRAINED_CONFIGS.get(training_config["backbone"], {})
     if pretrained_config:
@@ -255,11 +271,14 @@ def get_model_config(train_log: EventLog, training_config: dict):
         "device": training_config["device"],
     }
 
-
+# MAIN training and evaluation loop
 def main(training_config: dict):
+    # Step 1 : Load the raw data set 
     log = EVENT_LOGS[training_config["log"]]()
+    # Step 2 : Preprocess the data and split into train and test sets
     train, test = prepare_data(log.dataframe, log.unbiased_split_params)
 
+    # Step 3 : Define event features and targets
     event_features = EventFeatures(
         categorical=training_config["categorical_features"],
         numerical=training_config["continuous_features"],
@@ -269,6 +288,7 @@ def main(training_config: dict):
         numerical=training_config["continuous_targets"],
     )
 
+    # Create EventLog objects for train and test sets
     train_log = EventLog(
         dataframe=train,
         case_id="case_id",
