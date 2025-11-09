@@ -292,6 +292,8 @@ def main(training_config: dict):
         # Load custom dataset from XES file
         from pm4py import read_xes
         import os 
+        import pandas as pd
+
         file_path = CUSTOM_DATASETS[dataset_name]["path"]
         if not os.path.exists(file_path):
             raise FileNotFoundError(
@@ -299,8 +301,31 @@ def main(training_config: dict):
             )
         
         df = read_xes(file_path)
-        train, test = prepare_data(df, unbiased_split_params={"train_ratio": 0.8, "random_state": RANDOM_SEED})
         
+        # Calculate unbiased split parameters for custom dataset
+        df_sorted = df.sort_values('time:timestamp')
+        start_date = df_sorted['time:timestamp'].min()
+        end_date = df_sorted['time:timestamp'].max()
+
+        # Convert to Period with daily frequency (as expected by unbiased function)
+        start_date = pd.Period(start_date, freq='D')
+        end_date = pd.Period(end_date, freq='D')
+
+        # Calculate max_days: maximum case duration in days
+        case_durations = df.groupby('case:concept:name')['time:timestamp'].agg(
+            lambda x: (x.max() - x.min()).total_seconds() / 86400  # Convert to days
+        )
+        max_days = int(case_durations.max()) + 1
+        
+        unbiased_split_params = {
+            "start_date": start_date,
+            "end_date": end_date,
+            "max_days": max_days,
+            "test_len": 0.2
+        }
+        
+        train, test = prepare_data(df, unbiased_split_params)
+            
     else:
         raise ValueError(f"Unknown dataset: {dataset_name}")
 

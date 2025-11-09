@@ -6,3 +6,4 @@ wandb==0.19.8
 pydantic==2.11.5
 torchmetrics==1.7.4
 datasets==4.0.0
+pm4py==2.7.19
